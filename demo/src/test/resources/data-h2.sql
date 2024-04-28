@@ -1,0 +1,1 @@
+CREATE ALIAS GetStudentsByDepartment FOR "com.example.util.H2Procedures.getStudentsByDepartment";
