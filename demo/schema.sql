@@ -26,75 +26,49 @@ INSERT INTO student (id, name, address, course, department_id) VALUES (5, 'Eve D
 
 
 
-create or replace NONEDITIONABLE PACKAGE student_pkg AS
-    -- Define RefCursor type for returning cursors from procedures
-    TYPE RefCursor IS REF CURSOR;
-
-    -- Procedure to get students by department
-    PROCEDURE GetStudentsByDepartment(
-        p_department_id IN NUMBER,
-        p_recordset OUT RefCursor);
-
-    -- Procedure to get all student details along with their department names
-    PROCEDURE GetStudentDetails(p_recordset OUT RefCursor);
-
-    -- Declaration for inserting student details
-    PROCEDURE InsertStudentDetails(
-        p_name IN VARCHAR2,
-        p_address IN VARCHAR2,
-        p_course IN VARCHAR2,
-        p_department_id IN NUMBER,
-        p_student_id OUT NUMBER
-    );
+CREATE OR REPLACE PACKAGE student_pkg AS
+    -- Declare the procedure in the package specification
+    PROCEDURE GetStudentsByDepartment(p_department_id IN department.id%TYPE);
 END student_pkg;
 
 
 
+CREATE OR REPLACE PACKAGE BODY student_pkg AS
 
-create or replace NONEDITIONABLE PACKAGE BODY student_pkg AS
-
-    -- Implementation for getting students by department
-    PROCEDURE GetStudentsByDepartment(
-        p_department_id IN NUMBER,
-        p_recordset OUT RefCursor)
+    -- Implementation of the GetStudentsByDepartment procedure
+    PROCEDURE GetStudentsByDepartment(p_department_id IN department.id%TYPE)
     IS
-    BEGIN
-        OPEN p_recordset FOR
-        SELECT s.id AS "id",
-               s.name AS "name",
-               s.address AS "address",  -- Include this column
-               s.course AS "course",
-               s.department_id AS "department_id"  -- Ensure the alias matches the @Column annotation if necessary.
-        FROM student s
-            WHERE s.department_id = p_department_id;
-    END GetStudentsByDepartment;
+        -- Cursor to hold the list of students for the given department
+        CURSOR student_cursor IS
+            SELECT id, name, address, course
+            FROM student
+            WHERE department_id = p_department_id;
 
-    -- Implementation for getting all student details with department names
-    PROCEDURE GetStudentDetails(p_recordset OUT RefCursor)
-    IS
+        -- Record to fetch data into
+        student_record student_cursor%ROWTYPE;
     BEGIN
-        OPEN p_recordset FOR
-            SELECT s.id,s.name, d.name AS department_name
-            FROM student s
-            JOIN department d ON s.department_id = d.id;
-    END GetStudentDetails;
+        -- Open the cursor
+        OPEN student_cursor;
 
--- Procedure to insert student details
-PROCEDURE InsertStudentDetails(
-        p_name IN VARCHAR2,
-        p_address IN VARCHAR2,
-        p_course IN VARCHAR2,
-        p_department_id IN NUMBER,
-        p_student_id OUT NUMBER
-    ) AS
-    BEGIN
-        SELECT student_seq.NEXTVAL INTO p_student_id FROM dual;
-        INSERT INTO student (id, name, address, course, department_id)
-        VALUES (p_student_id, p_name, p_address, p_course, p_department_id);
+        -- Fetch each row from the cursor and output it
+        LOOP
+            FETCH student_cursor INTO student_record;
+            EXIT WHEN student_cursor%NOTFOUND;
+
+            -- Displaying each student's details - this could be modified to suit how you want to output
+            DBMS_OUTPUT.PUT_LINE('Student ID: ' || student_record.id || ', Name: ' || student_record.name ||
+                                 ', Address: ' || student_record.address || ', Course: ' || student_record.course);
+        END LOOP;
+
+        -- Close the cursor
+        CLOSE student_cursor;
     EXCEPTION
         WHEN OTHERS THEN
-            RAISE;
-    END InsertStudentDetails;
-
+            -- If an error occurs, output the error and make sure cursor is closed
+            DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+            IF student_cursor%ISOPEN THEN
+                CLOSE student_cursor;
+            END IF;
+    END GetStudentsByDepartment;
 
 END student_pkg;
