@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -41,6 +42,29 @@ public class StudentController {
     public ResponseEntity<List<Student>> getAllStudentsByDepartmentId(@PathVariable int departmentId) {
         List<Student> students = studentService.getStudentsByDepartment(departmentId);
         return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/department-function/{departmentId}")
+    public ResponseEntity<List<StudentVO>> getAllStudentsByDepartmentIdFunction(@PathVariable int departmentId) {
+        List<StudentVO> students = studentService.getStudentsByDepartmentFunction(departmentId);
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/date-string/{datestr}")
+    public ResponseEntity<Date> getDate(@PathVariable String datestr) {
+        Date date = studentService.getDateFromString(datestr);
+        return ResponseEntity.ok(date);
+    }
+
+    @GetMapping("/convert-string-to-number/{inputString}")
+    public ResponseEntity<?> convertStringToNumber(@PathVariable String inputString) {
+        try {
+            Integer result = studentService.convertStringToNumber(inputString);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            // Handle exceptions such as invalid input formats or conversion errors
+            return ResponseEntity.badRequest().body("Error converting string to number: " + e.getMessage());
+        }
     }
 
     // Endpoint to retrieve all students

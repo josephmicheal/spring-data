@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 @NamedStoredProcedureQueries({
         @NamedStoredProcedureQuery(
                 name = "Student.getStudentsByDepartment",
-                procedureName = "student_pkg.GetStudentsByDepartment",
+                procedureName = "GetStudentsByDepartment",
                 parameters = {
                         @StoredProcedureParameter(mode = ParameterMode.IN, type = Integer.class, name = "p_department_id"),
                         @StoredProcedureParameter(mode = ParameterMode.REF_CURSOR, type = void.class, name = "p_recordset")

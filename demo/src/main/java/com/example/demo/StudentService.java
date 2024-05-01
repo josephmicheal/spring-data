@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +13,7 @@ import java.util.Optional;
 public class StudentService {
 
     private final StudentRepository studentRepository;
+    private final CustomDateRepository customDateRepository;
 
     // Retrieve all students
     public List<Student> getAllStudents() {
@@ -35,6 +37,18 @@ public class StudentService {
 
     public List<Student> getStudentsByDepartment(int departmentId) {
         return studentRepository.getStudentsByDepartment(departmentId);
+    }
+
+    public List<StudentVO> getStudentsByDepartmentFunction(int departmentId) {
+        return studentRepository.getStudentsByDepartmentFunction(departmentId);
+    }
+
+    public Date getDateFromString(String dateString){
+        return customDateRepository.getDateFromString(dateString);
+    }
+
+    public Integer convertStringToNumber(String inputString) {
+        return customDateRepository.convertStringToNumber(inputString);
     }
 
     public List<StudentDepartment> getStudentDetails() {

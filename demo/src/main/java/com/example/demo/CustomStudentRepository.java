@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import java.util.Date;
 import java.util.List;
 
 public interface CustomStudentRepository {
@@ -10,4 +11,6 @@ public interface CustomStudentRepository {
     List<StudentDepartment> getStudentDetails();
 
     Integer insertStudentDetails(String name, String address, String course, Integer departmentId);
+
+    List<StudentVO> getStudentsByDepartmentFunction(int departmentId);
 }

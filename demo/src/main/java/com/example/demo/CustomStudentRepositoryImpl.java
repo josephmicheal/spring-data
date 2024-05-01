@@ -2,13 +2,16 @@ package com.example.demo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
+import jakarta.persistence.Query;
 import jakarta.persistence.StoredProcedureQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -68,4 +71,25 @@ public class CustomStudentRepositoryImpl implements CustomStudentRepository {
         query.execute();
         return (Integer) query.getOutputParameterValue("p_student_id");
     }
+
+    @Override
+    public List<StudentVO> getStudentsByDepartmentFunction(int departmentId) {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("GetStudentsByDepartmentFunc", StudentVO.class)
+                .registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN)
+                .registerStoredProcedureParameter(2, void.class, ParameterMode.REF_CURSOR)
+                .setParameter(1, departmentId);
+
+        query.execute();
+        return query.getResultList();
+    }
+
+
+    private StudentVO convertToStudentDTO(Object[] objects) {
+        return new StudentVO(
+                (String) objects[0], // Name
+                (String) objects[1], // Address
+                (String) objects[2]
+        );
+    }
+
 }
